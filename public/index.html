@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ID-JAG MCP Caller</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%232563eb'/><path d='M4 5h8M4 8h8M4 11h5' stroke='white' stroke-width='1.6' stroke-linecap='round'/></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <h1>ID-JAG MCP Caller</h1>
+        <p class="subtitle">Call an MCP server through Traefik Hub and inspect every request and response header.</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="theme-toggle" class="ghost" type="button" title="Toggle light/dark theme">Theme</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <h2>Connection</h2>
+        <label class="field">
+          <span>MCP endpoint</span>
+          <input id="endpoint" type="url" spellcheck="false" placeholder="https://gateway.example.com/mcp">
+        </label>
+        <div class="row">
+          <label class="field grow">
+            <span>Transport</span>
+            <select id="mode">
+              <option value="relay">Relay (exact wire headers)</option>
+              <option value="browser">Browser fetch (CORS-limited)</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Protocol</span>
+            <input id="protocol-version" type="text" spellcheck="false" size="10">
+          </label>
+        </div>
+        <p id="mode-hint" class="hint"></p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Extra request headers</h2>
+          <button id="add-header" class="ghost small" type="button">+ Add</button>
+        </div>
+        <p class="hint">Sent with every call, after the MCP headers. Use them to test what the gateway does with, e.g., an <code>Authorization</code> header. Saved in this browser only.</p>
+        <div id="custom-headers" class="kv-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Calls</h2>
+        <div class="button-row">
+          <button id="btn-discover" type="button">server/discover</button>
+          <button id="btn-list-tools" type="button">tools/list</button>
+        </div>
+        <div id="tools" class="tools"></div>
+      </section>
+
+      <section class="panel">
+        <details>
+          <summary><h2>Raw JSON-RPC</h2></summary>
+          <p class="hint">The <code>_meta</code> envelope and the <code>Mcp-*</code> routing headers are added for you.</p>
+          <label class="field">
+            <span>Method</span>
+            <input id="raw-method" type="text" spellcheck="false" value="tools/list">
+          </label>
+          <label class="field">
+            <span>Params (JSON)</span>
+            <textarea id="raw-params" rows="5" spellcheck="false">{}</textarea>
+          </label>
+          <button id="btn-raw" type="button">Send</button>
+        </details>
+      </section>
+    </aside>
+
+    <section class="log">
+      <div class="log-head">
+        <h2>Exchanges <span id="log-count" class="count">0</span></h2>
+        <div class="log-actions">
+          <label class="check"><input id="expand-bodies" type="checkbox"> Show bodies</label>
+          <button id="btn-clear" class="ghost small" type="button">Clear</button>
+        </div>
+      </div>
+      <div id="exchanges" class="exchanges">
+        <div class="empty">No calls yet. Start with <strong>server/discover</strong> or <strong>tools/list</strong>.</div>
+      </div>
+    </section>
+  </main>
+
+  <template id="exchange-template">
+    <article class="exchange">
+      <header class="exchange-head">
+        <button class="toggle" type="button" aria-expanded="true">
+          <span class="chevron" aria-hidden="true"></span>
+          <span class="seq"></span>
+          <span class="method"></span>
+          <span class="name"></span>
+        </button>
+        <span class="status"></span>
+        <span class="meta"></span>
+        <button class="ghost small copy-curl" type="button" title="Copy the request as a curl command">curl</button>
+      </header>
+      <div class="exchange-body">
+        <div class="alert" hidden></div>
+        <div class="headers-grid">
+          <section class="headers-section request">
+            <h3>Request headers <span class="count"></span></h3>
+            <div class="line request-line"></div>
+            <div class="headers-table"></div>
+            <p class="section-note"></p>
+          </section>
+          <section class="headers-section response">
+            <h3>Response headers <span class="count"></span></h3>
+            <div class="line status-line"></div>
+            <div class="headers-table"></div>
+            <p class="section-note"></p>
+          </section>
+        </div>
+        <div class="bodies">
+          <details class="body-section request-body">
+            <summary>Request body</summary>
+            <pre></pre>
+          </details>
+          <details class="body-section response-body">
+            <summary>Response body</summary>
+            <pre></pre>
+          </details>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
