@@ -30,16 +30,18 @@ Open http://127.0.0.1:5173. Settings:
 ```bash
 make run                                   # local Node on http://127.0.0.1:5173
 make run MCP_URL=https://hub.example.com/mcp
-make image                                 # build idjag-mcp-caller-ui:<git sha> and :latest
-make image-run                             # build, then run the image hardened on :5173
-make push IMAGE=ghcr.io/acme/idjag-mcp-caller-ui TAG=v0.1.0   # amd64 + arm64, pushed
+make image                                 # build linux/amd64, then linux/arm64
+make image-arm64                           # or just one: image-amd64 / image-arm64
+make image-run                             # build and run your machine's image hardened on :5173
+make push IMAGE=ghcr.io/acme/idjag-mcp-caller-ui TAG=v0.1.0   # one multi-arch tag, pushed
 make clean
 ```
 
-`image` builds for your machine's architecture only (arm64 on Apple Silicon); use `push` for
-clusters, which builds `linux/amd64,linux/arm64` (set `PLATFORMS` to change it). `image-run`
+`image` builds two local images, `idjag-mcp-caller-ui:<git describe>-amd64` and `...-arm64`.
+`image-run` builds and starts the one matching your Docker engine (arm64 on Apple Silicon) and
 points the UI at `http://host.docker.internal:8000/mcp` so it can reach an MCP server running on
-your machine (override with `DOCKER_MCP_URL`).
+your machine (override with `DOCKER_MCP_URL`). `push` builds `PLATFORMS`
+(`linux/amd64,linux/arm64`) into a single multi-arch tag, which is what a cluster should pull.
 
 ## Container / Kubernetes
 
